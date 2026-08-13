@@ -177,3 +177,27 @@ git push -u origin main --force
 Push'tan sonra Actions sekmesinde iş başlar. İlk adım repo kökünü listeleyip kritik dosyaları
 doğruluyor; eksik varsa Gradle'ın kriptik hatası yerine hangi dosyanın olmadığını yazıyor.
 Derleme biterse APK: run sayfası → Artifacts → `can-monitor-debug`.
+
+## Sürüm geçmişi
+
+| Sürüm | Değişiklik |
+|---|---|
+| 1.0.3 | Edge-to-edge inset düzeltmesi (içerik saat ve sanal tuşların altında kalıyordu); başlıkta sürüm etiketi |
+| 1.0.2 | İkon, splash, OBD renk teması |
+| 1.0.1 | GitHub Actions workflow |
+| 1.0 | İlk sürüm |
+
+### Edge-to-edge notu
+
+`targetSdk = 35` (Android 15) ile birlikte sistem, uygulama penceresini **zorla** edge-to-edge
+çiziyor; `fitsSystemWindows` veya klasik pencere bayrakları artık bunu kapatmıyor. Çözüm
+kök görünüme sistem çubuğu yüksekliklerini padding olarak eklemek — `MainActivity.applyInsets()`
+bunu yapıyor. Klavye açıldığında alt padding IME yüksekliğine çıkıyor, böylece Filter ID
+kutusuna yazarken alttaki butonlar klavyenin altında kaybolmuyor.
+
+Layout'ta `padding="14dp"` yerine dört ayrı `paddingStart/End/Top/Bottom` var; bunun sebebi
+listener'ın `setPadding()` ile hepsini yeniden yazması — tek `padding` bırakılsaydı Android
+Studio önizlemesi ile gerçek cihaz arasında fark oluşurdu.
+
+Sürüm etiketi `BuildConfig.VERSION_NAME`'den okunuyor, elle yazılmıyor. `app/build.gradle.kts`
+içindeki `versionName`'i değiştirmen yeterli; başlıktaki yazı kendiliğinden güncellenir.

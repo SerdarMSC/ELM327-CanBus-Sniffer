@@ -18,6 +18,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.canmonitor.databinding.ActivityMainBinding
@@ -64,6 +66,8 @@ class MainActivity : AppCompatActivity() {
         ui = ActivityMainBinding.inflate(layoutInflater)
         setContentView(ui.root)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        applyInsets()
+        ui.tvVersion.text = "v${BuildConfig.VERSION_NAME}"
 
         logger = CsvLogger(File(getExternalFilesDir(null), "logs"))
         btAdapter = (getSystemService(BLUETOOTH_SERVICE) as BluetoothManager).adapter
@@ -88,6 +92,27 @@ class MainActivity : AppCompatActivity() {
         elm.close()
         io.shutdownNow()
         super.onDestroy()
+    }
+
+    /**
+     * targetSdk 35'ten itibaren Android pencereyi zorla edge-to-edge cizer:
+     * icerik durum cubugunun ve gezinme cubugunun ALTINA tasar.
+     * Kok gorunume sistem cubugu yuksekliklerini padding olarak ekliyoruz.
+     * Klavye acildiginda alt padding IME yuksekligine cikiyor.
+     */
+    private fun applyInsets() {
+        val basePad = (14 * resources.displayMetrics.density).toInt()
+        ViewCompat.setOnApplyWindowInsetsListener(ui.root) { v, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            v.setPadding(
+                bars.left + basePad,
+                bars.top + basePad,
+                bars.right + basePad,
+                maxOf(bars.bottom, ime.bottom) + basePad
+            )
+            insets
+        }
     }
 
     // ------------------------------------------------------------------- izinler
