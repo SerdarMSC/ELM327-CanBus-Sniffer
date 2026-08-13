@@ -1,6 +1,3 @@
-<img width="512" height="512" alt="image" src="https://github.com/user-attachments/assets/9da1a53b-52ce-4002-9ec2-b44405908066" />
-
-
 # CAN Monitor — ELM327 Bluetooth CAN Logger
 
 Tek bir CAN ID'sini dinleyip CSV'ye kaydeden, sonra dosyayı WhatsApp vb. ile paylaştıran

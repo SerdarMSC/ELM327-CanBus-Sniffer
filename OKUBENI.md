@@ -154,3 +154,26 @@ sırası değişirse splash görünmez.
 Renkler ikondan örneklendi. Diğer OBD uygulamalarında farklı hex'ler kullanıyorsanız tek
 yapmanız gereken `colors.xml`'i değiştirmek — layout'lar ve tema hep bu token'lara bakıyor,
 hiçbir yerde gömülü hex kalmadı.
+
+## Repoya ilk yükleme (lokal test olmadan)
+
+Zip'i açtıktan sonra **`CanMonitor` klasörünün içine** gir — `settings.gradle.kts` repo kökünde
+olmalı, bir alt klasörde değil. Gradle settings dosyasını göremezse plugin çözümlemesi çöker.
+
+```bash
+cd CanMonitor
+git init
+git add -A
+git status --short          # settings.gradle.kts listede olmalı
+git commit -m "CAN Monitor v1.0.2"
+git branch -M main
+git remote add origin https://github.com/<kullanici>/ELM327-CanBus-Sniffer.git
+git push -u origin main --force
+```
+
+`git status --short` çıktısında `settings.gradle.kts` görünmüyorsa dur — repoda eski bir
+`.gitignore` kalmış demektir. Sil, zip'ten geleni kullan.
+
+Push'tan sonra Actions sekmesinde iş başlar. İlk adım repo kökünü listeleyip kritik dosyaları
+doğruluyor; eksik varsa Gradle'ın kriptik hatası yerine hangi dosyanın olmadığını yazıyor.
+Derleme biterse APK: run sayfası → Artifacts → `can-monitor-debug`.

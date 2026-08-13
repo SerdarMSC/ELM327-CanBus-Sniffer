@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.canmonitor"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.2"
     }
 
     buildFeatures { viewBinding = true }
@@ -34,4 +34,5 @@ dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }
