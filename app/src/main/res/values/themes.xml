@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.CanMonitor" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="colorPrimary">#4FC3F7</item>
+        <item name="colorAccent">#4FC3F7</item>
+        <item name="android:windowBackground">#12151A</item>
+    </style>
+</resources>

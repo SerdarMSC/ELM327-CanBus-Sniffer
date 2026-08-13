@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#12151A"
+    android:padding="14dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CAN MONITOR"
+        android:textColor="#4FC3F7"
+        android:textSize="16sp"
+        android:typeface="monospace"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="ELM327: Bagli degil"
+        android:textColor="#B0BEC5"
+        android:typeface="monospace"
+        android:textSize="13sp" />
+
+    <Spinner
+        android:id="@+id/spProtocol"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:backgroundTint="#4FC3F7" />
+
+    <Button
+        android:id="@+id/btnConnect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="CIHAZA BAGLAN" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:text="Filter ID (hex):"
+        android:textColor="#B0BEC5"
+        android:typeface="monospace"
+        android:textSize="13sp" />
+
+    <EditText
+        android:id="@+id/etFilterId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="250"
+        android:textColorHint="#546E7A"
+        android:textColor="#ECEFF1"
+        android:typeface="monospace"
+        android:inputType="textCapCharacters"
+        android:maxLength="8"
+        android:digits="0123456789ABCDEFabcdef"
+        android:backgroundTint="#4FC3F7"
+        android:importantForAutofill="no" />
+
+    <!-- baslik satiri -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Time"
+            android:textColor="#4FC3F7"
+            android:typeface="monospace"
+            android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="CAN ID"
+            android:textColor="#4FC3F7"
+            android:typeface="monospace"
+            android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:text="DATA"
+            android:textColor="#FF8A65"
+            android:typeface="monospace"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="4dp"
+        android:background="#37474F" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvFrames"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="4dp"
+        android:scrollbars="vertical" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#37474F" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnStart"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="START LOG" />
+
+        <Button
+            android:id="@+id/btnStop"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="STOP" />
+
+        <Button
+            android:id="@+id/btnShare"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="PAYLAS" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Frames: 0"
+        android:textColor="#B0BEC5"
+        android:typeface="monospace"
+        android:textSize="13sp" />
+
+</LinearLayout>
