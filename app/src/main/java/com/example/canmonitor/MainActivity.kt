@@ -51,13 +51,17 @@ class MainActivity : AppCompatActivity() {
     private var btAdapter: BluetoothAdapter? = null
     private var device: BluetoothDevice? = null
 
-    /** UI'ya basilacak son frame'ler (ekrani 500 fps ile guncellemiyoruz) */
-    private val recent = ArrayDeque<CanFrame>()
+    /** UI'ya basilacak son satirlar: Triple(zaman, id, veri). Cozumlenemeyen
+     *  adapter mesajlari da buraya "!" isaretiyle giriyor - sessizce yutulmuyor. */
+    private val recent = ArrayDeque<Triple<String, String, String>>()
     private val lock = Any()
 
     private var totalFrames = 0L
+    @Volatile private var unparsed = 0L
     private var startedAt = 0L
     private var lastFile: File? = null
+    private var lastRawFile: File? = null
+    private var lastInit: List<String> = emptyList()
 
     private val protocols = listOf(
         "6 - ISO 15765-4 CAN 11bit 500K",
@@ -187,6 +191,7 @@ class MainActivity : AppCompatActivity() {
                     ui.btnConnect.isEnabled = true
                     refreshButtons()
                     adapterList.setLines(dump.map { "· $it" })
+                    lastInit = dump
                 }
             } catch (e: Exception) {
                 elm.close()
@@ -213,12 +218,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         synchronized(lock) { recent.clear() }
-        adapterList.clear()
         totalFrames = 0
+        unparsed = 0
         startedAt = System.currentTimeMillis()
 
         val f = logger.start(filterId)
         lastFile = f
+        lastRawFile = logger.rawFile
+        // init dokumunu ham loga da yaz - teshiste en kiymetli kisim
+        lastInit.forEach { logger.writeRaw("# $it") }
+        logger.writeRaw("# filtre = ${if (filterId.isBlank()) "YOK (tum trafik)" else filterId}")
         status("Kayit: ${f.name}")
         refreshButtons(logging = true)
 
@@ -227,11 +236,24 @@ class MainActivity : AppCompatActivity() {
                 elm.startMonitor(
                     filterId = filterId,
                     onLine = { line ->
-                        val frame = CanParser.parse(line, startedAt) ?: return@startMonitor
-                        logger.write(frame)
-                        totalFrames++
+                        logger.writeRaw(line)
+                        val frame = CanParser.parse(line, startedAt)
+                        val row = if (frame != null) {
+                            logger.write(frame)
+                            totalFrames++
+                            Triple(
+                                String.format("%.3f", frame.elapsedMs / 1000.0),
+                                frame.id,
+                                frame.dataHex
+                            )
+                        } else {
+                            // Frame degil: "CAN ERROR", "?", "BUFFER FULL", "NO DATA"...
+                            // Eskiden sessizce atiliyordu; artik ekranda gorunuyor.
+                            unparsed++
+                            Triple("", "!", line.trim())
+                        }
                         synchronized(lock) {
-                            recent.addLast(frame)
+                            recent.addLast(row)
                             while (recent.size > 300) recent.removeFirst()
                         }
                     },
@@ -284,14 +306,26 @@ class MainActivity : AppCompatActivity() {
             status("Once kaydi durdurun")
             return
         }
-        val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", f)
-        val send = Intent(Intent.ACTION_SEND).apply {
-            type = "text/csv"
-            putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_SUBJECT, f.name)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val uris = ArrayList<android.net.Uri>()
+        uris += FileProvider.getUriForFile(this, "$packageName.fileprovider", f)
+        lastRawFile?.takeIf { it.exists() && it.length() > 0 }?.let {
+            uris += FileProvider.getUriForFile(this, "$packageName.fileprovider", it)
         }
-        startActivity(Intent.createChooser(send, "CSV dosyasini paylas"))
+
+        val send = if (uris.size > 1) {
+            Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                type = "text/plain"
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
+            }
+        } else {
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/csv"
+                putExtra(Intent.EXTRA_STREAM, uris[0])
+            }
+        }
+        send.putExtra(Intent.EXTRA_SUBJECT, f.name)
+        send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        startActivity(Intent.createChooser(send, "CSV + ham log paylas"))
     }
 
     // --------------------------------------------------------------------- UI
@@ -300,10 +334,12 @@ class MainActivity : AppCompatActivity() {
         override fun run() {
             val snapshot = synchronized(lock) { recent.toList() }
             if (snapshot.isNotEmpty()) {
-                adapterList.submit(snapshot)
+                adapterList.submitRows(snapshot)
                 ui.rvFrames.scrollToPosition(adapterList.itemCount - 1)
             }
-            ui.tvCount.text = "Frames: $totalFrames"
+            ui.tvCount.text =
+                if (unparsed > 0) "Frames: $totalFrames   |   cozumlenemeyen: $unparsed"
+                else "Frames: $totalFrames"
             main.postDelayed(this, 250)
         }
     }

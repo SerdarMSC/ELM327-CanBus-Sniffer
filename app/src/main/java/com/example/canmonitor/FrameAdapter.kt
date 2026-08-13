@@ -25,11 +25,9 @@ class FrameAdapter : RecyclerView.Adapter<FrameAdapter.VH>() {
     override fun getItemCount() = rows.size
 
     @SuppressLint("NotifyDataSetChanged")
-    fun submit(frames: List<CanFrame>) {
+    fun submitRows(newRows: List<Triple<String, String, String>>) {
         rows.clear()
-        frames.forEach {
-            rows += Triple(String.format("%.3f", it.elapsedMs / 1000.0), it.id, it.dataHex)
-        }
+        rows.addAll(newRows)
         notifyDataSetChanged()
     }
 

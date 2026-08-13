@@ -144,6 +144,12 @@ class ElmClient {
         cmd("ATH1")               // header (CAN ID) goster  <-- sart
         cmd("ATCAF0")             // otomatik ISO-TP formatlama kapali -> ham frame
         cmd("ATSP$protocol")      // protokol
+
+        // Bazi adapterlerde ATSP tek basina hatti AYAGA KALDIRMAZ; ATMA sessiz kalir.
+        // Sahte bir OBD istegi gonderip protokolu fiilen baslatiyoruz.
+        // "NO DATA" donmesi sorun degil - onemli olan hattin acilmis olmasi.
+        cmd("0100", 10000)
+        cmd("ATDPN")              // fiilen kullanilan protokol numarasi
         return log
     }
 
@@ -175,6 +181,7 @@ class ElmClient {
         monitoring = true
         out.write("ATMA\r".toByteArray(Charsets.US_ASCII))
         out.flush()
+        onLine("# ATMA gonderildi, akis bekleniyor...")
 
         val buf = ByteArray(1024)
         val sb = StringBuilder(64)

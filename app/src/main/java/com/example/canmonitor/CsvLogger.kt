@@ -18,9 +18,14 @@ class CsvLogger(private val dir: File) {
     private val nameFmt = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
 
     private var writer: BufferedWriter? = null
+    private var rawWriter: BufferedWriter? = null
     private var lastFlush = 0L
 
     var file: File? = null
+        private set
+
+    /** Adapterden gelen HER satirin ham kopyasi - teshis icin. */
+    var rawFile: File? = null
         private set
 
     var count = 0L
@@ -40,11 +45,24 @@ class CsvLogger(private val dir: File) {
         w.write("zaman;gecen_ms;can_id;dlc;veri_hex;b0;b1;b2;b3;b4;b5;b6;b7")
         w.newLine()
 
+        val rf = File(dir, "ham_${tag}_${nameFmt.format(Date())}.txt")
+        rawWriter = BufferedWriter(OutputStreamWriter(FileOutputStream(rf), Charsets.UTF_8), 16 * 1024)
+        rawFile = rf
+
         writer = w
         file = f
         count = 0
         lastFlush = System.currentTimeMillis()
         return f
+    }
+
+    /** Cozumlensin cozumlenmesin adapterden gelen her satir. */
+    fun writeRaw(line: String) {
+        val w = rawWriter ?: return
+        try {
+            w.write(line); w.newLine()
+        } catch (_: Exception) {
+        }
     }
 
     fun write(frame: CanFrame) {
@@ -77,7 +95,12 @@ class CsvLogger(private val dir: File) {
             w.flush(); w.close()
         } catch (_: Exception) {
         }
+        try {
+            rawWriter?.flush(); rawWriter?.close()
+        } catch (_: Exception) {
+        }
         writer = null
+        rawWriter = null
         return file
     }
 }

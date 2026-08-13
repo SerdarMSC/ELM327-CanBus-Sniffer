@@ -220,3 +220,45 @@ dinlemenin bitmesini bekliyordu — klasik kilitlenme.
 Ek olarak bir bekçi eklendi: adapter gönderilen CR'a 3 saniye içinde cevap vermezse
 (bazı klonlarda ATMA akışı takılabiliyor) soket kapatılıp arayüz serbest bırakılıyor, kullanıcı
 uygulamayı öldürmek zorunda kalmıyor.
+
+---
+
+**1.0.5 — sıfır frame teşhisi**
+
+Belirti: filtre boş bırakılmasına rağmen CSV'de tek satır yok, sadece başlık.
+
+Bu sürüm tek bir hatayı düzeltmiyor; **kör noktayı kapatıyor.** Önceki sürümde
+`CanParser.parse()` çözümleyemediği her satıra `null` dönüyordu ve `MainActivity` o satırı
+sessizce çöpe atıyordu. `CAN ERROR`, `?`, `BUFFER FULL`, `NO DATA`, `BUS INIT: ERROR` —
+hepsi aynı torbaya gidiyordu. Yani adapter "protokol yanlış" diye bağırıyor olsa bile ekranda
+`Frames: 0` görüyordun. Sorunu gizleyen şey, sorunu bulmanı sağlayacak bilginin ta kendisiydi.
+
+Değişiklikler:
+
+1. **Çözümlenemeyen satırlar artık listede görünüyor**, CAN ID sütununda `!` işaretiyle.
+   Sayaç satırında ayrıca `cozumlenemeyen: N` yazıyor.
+2. **Ham log dosyası**: her kayıtta CSV'nin yanına `ham_*.txt` açılıyor ve adapterden gelen
+   *her* satır ham hâliyle oraya yazılıyor. Başına init dökümü (`ATZ`, `ATSP…` cevapları) da
+   ekleniyor.
+3. **PAYLAŞ artık iki dosyayı birden** gönderiyor (CSV + ham log).
+4. **Protokol fiilen başlatılıyor**: `ATSP` sonrası bir `0100` isteği gönderiliyor. Bazı
+   adapterlerde `ATSP` tek başına hattı ayağa kaldırmıyor ve `ATMA` sessiz kalıyor —
+   `NO DATA` dönmesi sorun değil, önemli olan hattın açılması. Ardından `ATDPN` ile fiilen
+   kullanılan protokol numarası raporlanıyor.
+5. İnit dökümü START LOG'a basınca artık silinmiyor.
+
+### Sonraki adım
+
+Kaydı 10–15 saniye çalıştırıp **ham log dosyasını** paylaş. Orada göreceğimiz şey teşhisi
+kesinleştirir:
+
+| Ham logda görünen | Anlamı |
+|---|---|
+| `ATMA -> ?` | Adapter ATMA'yı desteklemiyor (klon firmware) |
+| `CAN ERROR` | Baud/protokol yanlış — aracın hattı 500K değil, 250K veya 29-bit olabilir |
+| `ATDPN -> A6` vb. | Protokol tespit edilmiş, `A` öneki otomatik demek |
+| `0100 -> NO DATA` | ECU cevap vermiyor; kontak açık mı? |
+| Hiçbir şey yok | Akış hiç başlamamış, ATMA'dan sonra tek satır bile gelmiyor |
+
+Not: `ATDPN` çıktısı beklediğimizden farklı çıkarsa protokol seçimini elle değiştirmek
+gerekebilir — arayüzdeki açılır listeden 250K veya 29-bit seçeneklerini dene.

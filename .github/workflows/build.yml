@@ -22,6 +22,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Proje yapisini dogrula
+        run: |
+          echo "--- repo koku ---"
+          ls -la
+          missing=0
+          for f in settings.gradle.kts build.gradle.kts app/build.gradle.kts app/src/main/AndroidManifest.xml; do
+            if [ ! -f "$f" ]; then echo "EKSIK: $f"; missing=1; else echo "var:   $f"; fi
+          done
+          if [ "$missing" = "1" ]; then
+            echo ""
+            echo "Gradle projesi eksik dosyalarla derlenemez."
+            echo "En sik sebep: settings.gradle.kts commit edilmemis olmasi."
+            echo "Lokalde kontrol: git ls-files | grep gradle"
+            exit 1
+          fi
+
       - name: JDK 17 kur
         uses: actions/setup-java@v4
         with:
