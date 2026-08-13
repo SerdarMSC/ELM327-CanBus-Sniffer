@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- OBD uygulama ailesi paleti — ikondan ornekleme -->
+    <color name="obd_bg">#061428</color>          <!-- en koyu zemin -->
+    <color name="obd_surface">#0E1C33</color>     <!-- kart / satir zemini -->
+    <color name="obd_surface_alt">#152743</color>
+    <color name="obd_line">#1E3555</color>        <!-- ayirici cizgi -->
+
+    <color name="obd_primary">#29B6F6</color>     <!-- elektrik mavisi (CAN-H) -->
+    <color name="obd_primary_dim">#1B6FA8</color>
+    <color name="obd_cyan">#6FD6FF</color>
+    <color name="obd_amber">#FFC400</color>       <!-- kehribar (CAN-L / veri) -->
+    <color name="obd_green">#2E9E4F</color>       <!-- CSV yesili -->
+    <color name="obd_red">#EF5350</color>
+
+    <color name="obd_text">#E8F1FA</color>
+    <color name="obd_text_dim">#8CA3BC</color>
+</resources>

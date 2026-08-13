@@ -3,17 +3,39 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#12151A"
+    android:background="@color/obd_bg"
     android:padding="14dp">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- baslik -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="CAN MONITOR"
-        android:textColor="#4FC3F7"
-        android:textSize="16sp"
-        android:typeface="monospace"
-        android:textStyle="bold" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="@string/app_name" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="CAN MONITOR"
+            android:textColor="@color/obd_primary"
+            android:textSize="16sp"
+            android:typeface="monospace"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/obd_primary_dim" />
 
     <TextView
         android:id="@+id/tvStatus"
@@ -21,7 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="ELM327: Bagli degil"
-        android:textColor="#B0BEC5"
+        android:textColor="@color/obd_text_dim"
         android:typeface="monospace"
         android:textSize="13sp" />
 
@@ -30,13 +52,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:backgroundTint="#4FC3F7" />
+        android:popupBackground="@color/obd_surface"
+        android:backgroundTint="@color/obd_primary" />
 
     <Button
         android:id="@+id/btnConnect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
+        android:background="@drawable/bg_button"
+        android:textColor="@color/btn_text"
+        android:typeface="monospace"
         android:text="CIHAZA BAGLAN" />
 
     <TextView
@@ -44,7 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
         android:text="Filter ID (hex):"
-        android:textColor="#B0BEC5"
+        android:textColor="@color/obd_text_dim"
         android:typeface="monospace"
         android:textSize="13sp" />
 
@@ -52,17 +78,20 @@
         android:id="@+id/etFilterId"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:padding="10dp"
+        android:background="@drawable/bg_input"
         android:hint="250"
-        android:textColorHint="#546E7A"
-        android:textColor="#ECEFF1"
+        android:textColorHint="@color/obd_text_dim"
+        android:textColor="@color/obd_amber"
+        android:textStyle="bold"
         android:typeface="monospace"
         android:inputType="textCapCharacters"
         android:maxLength="8"
         android:digits="0123456789ABCDEFabcdef"
-        android:backgroundTint="#4FC3F7"
         android:importantForAutofill="no" />
 
-    <!-- baslik satiri -->
+    <!-- tablo basligi -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -74,7 +103,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="Time"
-            android:textColor="#4FC3F7"
+            android:textColor="@color/obd_primary"
             android:typeface="monospace"
             android:textSize="13sp" />
 
@@ -83,7 +112,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="CAN ID"
-            android:textColor="#4FC3F7"
+            android:textColor="@color/obd_primary"
             android:typeface="monospace"
             android:textSize="13sp" />
 
@@ -92,7 +121,7 @@
             android:layout_weight="2"
             android:layout_height="wrap_content"
             android:text="DATA"
-            android:textColor="#FF8A65"
+            android:textColor="@color/obd_amber"
             android:typeface="monospace"
             android:textSize="13sp" />
     </LinearLayout>
@@ -101,7 +130,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="4dp"
-        android:background="#37474F" />
+        android:background="@color/obd_line" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvFrames"
@@ -114,7 +143,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#37474F" />
+        android:background="@color/obd_line" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -127,6 +156,10 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_button"
+            android:textColor="@color/btn_text"
+            android:typeface="monospace"
+            android:textSize="12sp"
             android:text="START LOG" />
 
         <Button
@@ -135,6 +168,10 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
+            android:background="@drawable/bg_button"
+            android:textColor="@color/btn_text"
+            android:typeface="monospace"
+            android:textSize="12sp"
             android:text="STOP" />
 
         <Button
@@ -143,6 +180,10 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
+            android:background="@drawable/bg_button"
+            android:textColor="@color/btn_text"
+            android:typeface="monospace"
+            android:textSize="12sp"
             android:text="PAYLAS" />
     </LinearLayout>
 
@@ -152,7 +193,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Frames: 0"
-        android:textColor="#B0BEC5"
+        android:textColor="@color/obd_text_dim"
         android:typeface="monospace"
         android:textSize="13sp" />
 

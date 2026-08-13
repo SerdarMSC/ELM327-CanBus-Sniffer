@@ -18,6 +18,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.canmonitor.databinding.ActivityMainBinding
 import java.io.File
@@ -58,6 +59,7 @@ class MainActivity : AppCompatActivity() {
     // ------------------------------------------------------------------ yasam dongusu
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()          // super.onCreate'den ONCE cagrilmali
         super.onCreate(savedInstanceState)
         ui = ActivityMainBinding.inflate(layoutInflater)
         setContentView(ui.root)

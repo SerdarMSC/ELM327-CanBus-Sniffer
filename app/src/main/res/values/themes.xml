@@ -1,7 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.CanMonitor" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="colorPrimary">#4FC3F7</item>
-        <item name="colorAccent">#4FC3F7</item>
-        <item name="android:windowBackground">#12151A</item>
+
+    <!-- Uygulama basladiktan sonraki asil tema -->
+    <style name="Theme.CanMonitor" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/obd_primary</item>
+        <item name="colorPrimaryDark">@color/obd_bg</item>
+        <item name="colorAccent">@color/obd_primary</item>
+        <item name="android:windowBackground">@color/obd_bg</item>
+        <item name="android:statusBarColor">@color/obd_bg</item>
+        <item name="android:navigationBarColor">@color/obd_bg</item>
+        <item name="android:textColorPrimary">@color/obd_text</item>
+        <item name="android:textColorSecondary">@color/obd_text_dim</item>
+        <item name="android:colorBackground">@color/obd_bg</item>
+    </style>
+
+    <!-- Acilis temasi. Manifest'te activity BU temayi kullanir; SplashScreen API
+         ilk frame'den sonra postSplashScreenTheme'e gecer. -->
+    <style name="Theme.CanMonitor.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/obd_bg</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>
+        <item name="postSplashScreenTheme">@style/Theme.CanMonitor</item>
     </style>
 </resources>
