@@ -201,3 +201,22 @@ Studio önizlemesi ile gerçek cihaz arasında fark oluşurdu.
 
 Sürüm etiketi `BuildConfig.VERSION_NAME`'den okunuyor, elle yazılmıyor. `app/build.gradle.kts`
 içindeki `versionName`'i değiştirmen yeterli; başlıktaki yazı kendiliğinden güncellenir.
+
+---
+
+**1.0.4 — STOP kilitlenmesi**
+
+Belirti: START LOG'dan sonra STOP tepki vermiyor, PAYLAŞ pasif kalıyor.
+
+Sebep: `MainActivity` tek bir `newSingleThreadExecutor()` kullanıyordu. `elm.startMonitor()`
+tasarım gereği bloklayıcı — ATMA akışı bitene kadar geri dönmez. Dolayısıyla o tek thread'i
+süresiz işgal ediyordu. STOP'a basınca `io.execute { elm.stopMonitor() }` görevi kuyruğa
+giriyor ama önündeki iş hiç bitmediği için sırası hiç gelmiyordu. Dinlemeyi durduracak komut,
+dinlemenin bitmesini bekliyordu — klasik kilitlenme.
+
+Çözüm: dinleme döngüsü ayrı bir havuza (`monitorExec`) taşındı, `io` havuzu kısa komutlara
+(bağlan / durdur / paylaş) ayrıldı. STOP artık boş bir thread'de anında çalışıyor.
+
+Ek olarak bir bekçi eklendi: adapter gönderilen CR'a 3 saniye içinde cevap vermezse
+(bazı klonlarda ATMA akışı takılabiliyor) soket kapatılıp arayüz serbest bırakılıyor, kullanıcı
+uygulamayı öldürmek zorunda kalmıyor.

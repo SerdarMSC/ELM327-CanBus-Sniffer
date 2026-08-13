@@ -36,7 +36,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var logger: CsvLogger
     private val adapterList = FrameAdapter()
 
+    /** Kisa komutlar: baglan, durdur, paylas. */
     private val io = Executors.newSingleThreadExecutor()
+
+    /**
+     * ATMA dinleme dongusu icin AYRI havuz.
+     * Ayni havuzda olsaydi startMonitor() tek thread'i suresiz mesgul eder,
+     * STOP'un gorevi kuyrukta bekler ve hicbir zaman calismazdi.
+     */
+    private val monitorExec = Executors.newSingleThreadExecutor()
+
     private val main = Handler(Looper.getMainLooper())
 
     private var btAdapter: BluetoothAdapter? = null
@@ -91,6 +100,7 @@ class MainActivity : AppCompatActivity() {
         logger.stop()
         elm.close()
         io.shutdownNow()
+        monitorExec.shutdownNow()
         super.onDestroy()
     }
 
@@ -212,7 +222,7 @@ class MainActivity : AppCompatActivity() {
         status("Kayit: ${f.name}")
         refreshButtons(logging = true)
 
-        io.execute {
+        monitorExec.execute {
             try {
                 elm.startMonitor(
                     filterId = filterId,
@@ -236,7 +246,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopLogging() {
+        ui.btnStop.isEnabled = false
+        status("Durduruluyor...")
         io.execute { elm.stopMonitor() }
+
+        // Bekci: adapter CR'a cevap vermezse okuma cagrisi bloke kalir.
+        // 3 sn icinde donmezse soketi kapatip kullaniciyi kilitli birakmiyoruz.
+        main.postDelayed({
+            if (elm.monitoring || logger.active) {
+                io.execute { elm.close() }
+                main.post {
+                    status("Adapter cevap vermedi - baglanti kapatildi")
+                    onMonitorEnded()
+                }
+            }
+        }, 3000)
     }
 
     private fun onMonitorEnded() {
