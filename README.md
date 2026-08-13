@@ -1,3 +1,5 @@
+https://raw.githubusercontent.com/SerdarMSC/ELM327-CanBus-Sniffer/refs/heads/main/playstore_icon_512.png
+
 # CAN Monitor — ELM327 Bluetooth CAN Logger
 
 Tek bir CAN ID'sini dinleyip CSV'ye kaydeden, sonra dosyayı WhatsApp vb. ile paylaştıran
