@@ -217,6 +217,25 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        if (filterId.isBlank()) {
+            AlertDialog.Builder(this)
+                .setTitle("Filtresiz kayit")
+                .setMessage(
+                    "Filtre bos: tum CAN trafigi dinlenecek.\n\n" +
+                    "500K'lik dolu bir hat adapterin seri baglantisindan hizlidir; " +
+                    "adapter surekli tasar (BUFFER FULL) ve frame'lerin cogu kaybolur. " +
+                    "Akis otomatik yeniden baslatiliyor ama kayit DELIKLI olur.\n\n" +
+                    "Saglikli kayit icin bir ID gir."
+                )
+                .setPositiveButton("Yine de basla") { _, _ -> beginLogging("") }
+                .setNegativeButton("Vazgec", null)
+                .show()
+            return
+        }
+        beginLogging(filterId)
+    }
+
+    private fun beginLogging(filterId: String) {
         synchronized(lock) { recent.clear() }
         totalFrames = 0
         unparsed = 0
@@ -246,6 +265,8 @@ class MainActivity : AppCompatActivity() {
                                 frame.id,
                                 frame.dataHex
                             )
+                        } else if (line.startsWith("#")) {
+                            Triple("", "", line.trim())          // kendi bilgi notumuz
                         } else {
                             // Frame degil: "CAN ERROR", "?", "BUFFER FULL", "NO DATA"...
                             // Eskiden sessizce atiliyordu; artik ekranda gorunuyor.

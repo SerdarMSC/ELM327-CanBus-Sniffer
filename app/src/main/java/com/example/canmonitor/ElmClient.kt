@@ -170,17 +170,29 @@ class ElmClient {
         val out = output ?: throw IllegalStateException("Baglanti yok")
         val i = input ?: throw IllegalStateException("Baglanti yok")
 
+        // --- Filtreyi ATCF/ATCM cifti ile kur.
+        // ATCRA kisayolunun bu klonda beklendigi gibi davranmadigini gordük:
+        // filtresiz kayitta bus'ta bir suru ID olmasina ragmen sadece 75E geldi.
+        // ATCF (filtre) + ATCM (maske) ikilisi ayni isi acikca yapar.
         val id = filterId.trim().uppercase()
-        if (id.isNotEmpty()) {
-            val r = sendCommand("ATCRA $id")
-            if (r.contains("?")) onError("Adapter 'ATCRA $id' komutunu kabul etmedi")
+        if (id.isEmpty()) {
+            onLine("# ATCF 000 -> " + sendCommand("ATCF 000"))
+            onLine("# ATCM 000 -> " + sendCommand("ATCM 000"))   // maske 0 = hepsini kabul et
         } else {
-            sendCommand("ATCRA")   // filtreyi sifirla
+            val mask = if (id.length > 3) "1FFFFFFF" else "7FF"
+            onLine("# ATCF $id -> " + sendCommand("ATCF $id"))
+            onLine("# ATCM $mask -> " + sendCommand("ATCM $mask"))
         }
 
         monitoring = true
-        out.write("ATMA\r".toByteArray(Charsets.US_ASCII))
-        out.flush()
+        var restarts = 0
+
+        fun sendAtma() {
+            out.write("ATMA\r".toByteArray(Charsets.US_ASCII))
+            out.flush()
+        }
+
+        sendAtma()
         onLine("# ATMA gonderildi, akis bekleniyor...")
 
         val buf = ByteArray(1024)
@@ -197,7 +209,24 @@ class ElmClient {
                                 sb.setLength(0)
                             }
                         }
-                        PROMPT -> sb.setLength(0)
+                        PROMPT -> {
+                            // '>' = ELM akisi kesti. Sebep genelde BUFFER FULL:
+                            // 500K'lik dolu bir hat, adapterin seri baglantisindan hizli.
+                            // Akisi hemen yeniden baslatiyoruz - aksi halde uygulama
+                            // ilk tasmada sessizce olur (v1.0.5'teki davranis buydu).
+                            if (sb.isNotEmpty()) {
+                                onLine(sb.toString())
+                                sb.setLength(0)
+                            }
+                            if (monitoring) {
+                                restarts++
+                                if (restarts % 25 == 1) {
+                                    onLine("# akis kesildi, ATMA yeniden basladi (#$restarts)")
+                                }
+                                Thread.sleep(40)
+                                sendAtma()
+                            }
+                        }
                         else -> if (sb.length < 200) sb.append(ch)
                     }
                 }

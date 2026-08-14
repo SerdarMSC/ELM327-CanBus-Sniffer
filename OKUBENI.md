@@ -262,3 +262,43 @@ kesinleştirir:
 
 Not: `ATDPN` çıktısı beklediğimizden farklı çıkarsa protokol seçimini elle değiştirmek
 gerekebilir — arayüzdeki açılır listeden 250K veya 29-bit seçeneklerini dene.
+
+---
+
+**1.0.6 — BUFFER FULL sonrası akışın ölmesi**
+
+Ham loglar sorunu kesinleştirdi. Bizim kayıt:
+
+```
+75E 00 00 00 00 00 00 00 00     (x9)
+75E 00
+BUFFER FULL
+```
+
+...ve orada bitiyor. GearView logunda ise `BUFFER FULL` **43 kez** geçiyor ve her seferinde
+kayıt devam ediyor. Aradaki fark tek bir davranış: GearView taşma sonrası akışı yeniden
+başlatıyor, biz başlatmıyorduk.
+
+Mekanizma: 500 kbps'lik dolu bir CAN hattı, ELM327'nin telefonla arasındaki seri bağlantıdan
+hızlı. Adapter kendi tamponunu dolduruyor, `BUFFER FULL` basıyor, akışı kesip `>` promptuna
+dönüyor. Bizim okuma döngüsü prompt karakterini görüp tamponu temizliyor ve *daha fazla veri
+bekliyordu* — ama ELM artık yayın yapmıyordu. Sonsuza kadar boş bir sokete bakıyorduk.
+
+Düzeltmeler:
+
+1. **Prompt görülünce ATMA otomatik yeniden gönderiliyor.** Taşma artık kaydı bitirmiyor,
+   sadece kısa bir boşluk oluşturuyor. Yeniden başlatma sayısı ekranda raporlanıyor.
+2. **Filtre `ATCRA` yerine `ATCF` + `ATCM` çiftiyle kuruluyor.** Filtresiz kaydımızda hatta
+   onlarca ID olmasına rağmen yalnızca `75E` gelmişti — `ATCRA` bu klonda beklendiği gibi
+   sıfırlanmıyor. GearView'in kullandığı `ATCF 000` + `ATCM 000` (maske sıfır = hepsini kabul et)
+   ikilisi işi açıkça yapıyor. Tek ID için `ATCF <id>` + `ATCM 7FF`.
+3. **Filtresiz kayıtta uyarı** çıkıyor: tüm trafikte taşma kaçınılmaz, kayıt delikli olur.
+
+### Beklenti
+
+Filtreli kayıt (`2F5` gibi) artık dolmalı — donanım filtresi trafiği ~%99 azalttığı için taşma
+da büyük ölçüde bitiyor. Filtresiz kayıt hâlâ delikli olacak; bu adapterin fiziksel sınırı,
+yazılımla çözülmüyor. Kesintisiz tam bus kaydı isteniyorsa STN1110/OBDLink sınıfı bir cihaz gerekir.
+
+`2F5` kaydında hâlâ hiçbir şey gelmezse ham logda `ATCF 2F5 -> OK` satırına bak: `?` dönüyorsa
+adapter komutu reddediyor, `OK` dönüp veri yoksa o ID gerçekten hatta yok demektir.
